@@ -1,0 +1,7 @@
+[build]
+  base = "client" # Path to the base directory, relative to the repository root
+  publish = "build" # Path to the directory to publish, relative to the base
+  command = "yarn build" # Build command
+
+[context.production]
+  environment = { REACT_APP_API_URL = "https://quizlearn.onrender.com" }
