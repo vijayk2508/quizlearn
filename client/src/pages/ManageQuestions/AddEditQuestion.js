@@ -59,6 +59,7 @@ function AddEditQuestion({
   const fileInputRef2 = useRef(null);
   const fileInputRef3 = useRef(null);
   const fileInputRef4 = useRef(null);
+  const [correctOption, setCorrectOption] = useState("");
 
   const handleClose = () => {
     setShowModal(false);
@@ -107,6 +108,7 @@ function AddEditQuestion({
     formData.append("quizType", quizType);
     formData.append("optionType", optionType);
     formData.append("questionTitle", questionTitle);
+    formData.append("correctOption", correctOption);
 
     // Add thumbnail files if available
     if (thumbnailFile1) {
@@ -503,6 +505,29 @@ function AddEditQuestion({
                 </Row>
               </>
             )}
+
+            <Form.Group className="mb-3">
+              <Form.Label>Correct Option</Form.Label>
+              <Form.Control
+                as="select"
+                value={correctOption}
+                onChange={(e) => setCorrectOption(e.target.value)}
+                isInvalid={correctOption === ""}
+              >
+                <option value="">Select Correct Option</option>
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+                {optionType !== "trueFalse" && (
+                  <>
+                    <option value="option3">Option 3</option>
+                    <option value="option4">Option 4</option>
+                  </>
+                )}
+              </Form.Control>
+              <Form.Control.Feedback type="invalid">
+                Please select the correct option.
+              </Form.Control.Feedback>
+            </Form.Group>
 
             {responseError && (
               <div className="text-danger mb-3">{responseError}</div>

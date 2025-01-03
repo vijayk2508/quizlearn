@@ -32,22 +32,22 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(compression());
 
 // Configure CORS for localhost and production
-// const allowedOrigins = [
-//   'http://localhost:3000', // React localhost
-//   process.env.PRODUCTION_DOMAIN || 'https://quizlearn-five.vercel.app/', // React production domain
-// ];
+const allowedOrigins = [
+  'http://localhost:3000', // React localhost
+  process.env.PRODUCTION_DOMAIN || 'https://quizlearn-five.vercel.app/', // React production domain
+];
 
-// app.use(cors({
-//   origin: function (origin, callback) {
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//   credentials: true,
-// }));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  // /credentials: true,
+}));
 
 // Rate Limiter to handle high request volume
 const limiter = rateLimit({
