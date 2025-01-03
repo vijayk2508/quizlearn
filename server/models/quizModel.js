@@ -40,7 +40,7 @@ const quizSchema = new mongoose.Schema(
       validate: {
         validator: function (value) {
           // Ensure the correctOption matches one of the options' _id
-          return this.options.some(option => option._id.toString() === value.toString());
+          return this.options?.some?.(option => option._id.toString() === value.toString());
         },
         message: "Correct option must match one of the options' IDs.",
       },

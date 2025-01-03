@@ -62,6 +62,8 @@ function AddEditQuiz({
   const fileInputRef4 = useRef(null);
   const [correctOption, setCorrectOption] = useState("");
   const [correctOptionError, setCorrectOptionError] = useState("");
+  const [optionMapping, setOptionMapping] = useState(null);
+
 
   useEffect(() => {
     if (id) {
@@ -72,58 +74,50 @@ function AddEditQuiz({
           const quizData = response.data.data;
           console.log(quizData);
 
-          setQuestionType(quizData.questionType._id);
+          setQuestionType(quizData.questionType);
           setCategory(quizData.category);
           setQuizType(quizData.quizType);
           setOptionType(quizData.optionType);
           setQuestionTitle(quizData.questionTitle);
-          const correctOptionObjIndex = quizData.options?.find?.(opt=> opt._id===quizData?.correctOption)?.optionIndex
+          const correctOptionObjIndex = quizData.options?.find?.(
+            (opt) => opt._id === quizData?.correctOption
+          )?.optionIndex;
           setCorrectOption(`option${correctOptionObjIndex}`);
           if (quizData.options) {
-            if (quizData.optionType === "trueFalse") {
-              quizData.options.forEach((opt) => {
+            let optionMappingWithData = {};
+            quizData.options.forEach((opt) => {
+              if (quizData.optionType !== "images") {
                 if (opt.optionIndex === 1) {
                   setOption1(opt.optionText);
                 }
                 if (opt.optionIndex === 2) {
                   setOption2(opt.optionText);
                 }
-              });
-            } else {
-              quizData.options.forEach((opt) => {
-                if (quizData.optionType !== "images") {
-                  if (opt.optionIndex === 1) {
-                    setOption1(opt.optionText);
-                  }
-                  if (opt.optionIndex === 2) {
-                    setOption2(opt.optionText);
-                  }
-
-                  if (opt.optionIndex === 2) {
-                    setOption3(opt.optionText);
-                  }
-
-                  if (opt.optionIndex === 2) {
-                    setOption4(opt.optionText);
-                  }
-                } else {
-                  if (opt.optionIndex === 1) {
-                    setThumbnail1(opt.optionImage);
-                  }
-                  if (opt.optionIndex === 2) {
-                    setThumbnail2(opt.optionImage);
-                  }
-
-                  if (opt.optionIndex === 2) {
-                    setThumbnail3(opt.optionImage);
-                  }
-
-                  if (opt.optionIndex === 2) {
-                    setThumbnail4(opt.optionImage);
-                  }
+                if (opt.optionIndex === 3) {
+                  setOption3(opt.optionText);
                 }
-              });
-            }
+                if (opt.optionIndex === 4) {
+                  setOption4(opt.optionText);
+                }
+              } else {
+                if (opt.optionIndex === 1) {
+                  setThumbnail1(opt.optionImage);
+                }
+                if (opt.optionIndex === 2) {
+                  setThumbnail2(opt.optionImage);
+                }
+                if (opt.optionIndex === 3) {
+                  setThumbnail3(opt.optionImage);
+                }
+                if (opt.optionIndex === 4) {
+                  setThumbnail4(opt.optionImage);
+                }
+              }
+              
+              optionMappingWithData[`option${opt.optionIndex}`] = opt;
+            });
+
+            setOptionMapping(optionMappingWithData);
           }
         } catch (error) {
           setResponseError("Failed to fetch quiz data.");
@@ -164,7 +158,7 @@ function AddEditQuiz({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     // Validate options
     if (!option1) setOption1Error("Option 1 is required");
     if (!option2) setOption2Error("Option 2 is required");
@@ -172,11 +166,12 @@ function AddEditQuiz({
       if (!option3) setOption3Error("Option 3 is required");
       if (!option4) setOption4Error("Option 4 is required");
     }
-
+  
     if (!correctOption) {
       setCorrectOptionError("Correct option is required");
       return;
     }
+  
     // Prepare the form data
     const formData = new FormData();
     formData.append("questionType", questionType);
@@ -184,31 +179,44 @@ function AddEditQuiz({
     formData.append("quizType", quizType);
     formData.append("optionType", optionType);
     formData.append("questionTitle", questionTitle);
-    formData.append("correctOption", correctOption);
-
+  
     // Add options based on optionType
     if (optionType === "trueFalse") {
       formData.append("option1", true);
       formData.append("option2", false);
-    } else {
-      if (optionType === "images") {
-        if (!thumbnail1) setOption1Error("Option 1 is required");
-        if (!thumbnail2) setOption2Error("Option 2 is required");
-        if (!thumbnail3) setOption3Error("Option 3 is required");
-        if (!thumbnail4) setOption4Error("Option 4 is required");
-
+    } else if (optionType === "images") {
+      if (!thumbnail1) setOption1Error("Option 1 is required");
+      if (!thumbnail2) setOption2Error("Option 2 is required");
+      if (!thumbnail3) setOption3Error("Option 3 is required");
+      if (!thumbnail4) setOption4Error("Option 4 is required");
+  
+      if (!id) {
         formData.append("option1", thumbnail1);
         formData.append("option2", thumbnail2);
         formData.append("option3", thumbnail3);
         formData.append("option4", thumbnail4);
       } else {
+        formData.append("option1", JSON.stringify({ ...optionMapping["option1"], optionImage: thumbnail1 }));
+        formData.append("option2", JSON.stringify({ ...optionMapping["option2"], optionImage: thumbnail2 }));
+        formData.append("option3", JSON.stringify({ ...optionMapping["option3"], optionImage: thumbnail3 }));
+        formData.append("option4", JSON.stringify({ ...optionMapping["option4"], optionImage: thumbnail4 }));
+      }
+    } else {
+      if (!id) {
         formData.append("option1", option1);
         formData.append("option2", option2);
         formData.append("option3", option3);
         formData.append("option4", option4);
+      } else {
+        formData.append("option1", JSON.stringify({ ...optionMapping["option1"], optionText: option1 }));
+        formData.append("option2", JSON.stringify({ ...optionMapping["option2"], optionText: option2 }));
+        formData.append("option3", JSON.stringify({ ...optionMapping["option3"], optionText: option3 }));
+        formData.append("option4", JSON.stringify({ ...optionMapping["option4"], optionText: option4 }));
       }
     }
-
+  
+    formData.append("correctOption", correctOption);
+  
     try {
       // Submit the form data
       const response = id
@@ -222,7 +230,7 @@ function AddEditQuiz({
               "Content-Type": "multipart/form-data",
             },
           });
-
+  
       if (response.status === 201 || response.status === 200) {
         setShowSuccessModal(true);
         handleRefresh();
@@ -307,6 +315,8 @@ function AddEditQuiz({
                   onChange={(e) => {
                     setOption1("");
                     setOption2("");
+                    setOption3("");
+                    setOption4("");
                     setOptionType(e.target.value);
                   }}
                 />
@@ -321,8 +331,11 @@ function AddEditQuiz({
                   onChange={(e) => {
                     setOption1("True");
                     setOption2("False");
+                    setOption3("");
+                    setOption4("");
                     setOptionType(e.target.value);
                   }}
+                  disabled
                 />
                 <Form.Check
                   inline
@@ -333,10 +346,13 @@ function AddEditQuiz({
                   value="images"
                   checked={optionType === "images"}
                   onChange={(e) => {
-                    setOption1("");
-                    setOption2("");
+                    setThumbnail1("");
+                    setThumbnail2("");
+                    setThumbnail3("");
+                    setThumbnail4("");
                     setOptionType(e.target.value);
                   }}
+                  disabled
                 />
               </div>
             </Form.Group>

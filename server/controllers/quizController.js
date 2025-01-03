@@ -1,26 +1,38 @@
-const mongoose = require('mongoose');
-const Quiz = require('../models/quizModel');
+const mongoose = require("mongoose");
+const Quiz = require("../models/quizModel");
 
 exports.createQuiz = async (req, res) => {
   try {
-    const { questionType, category, quizType, optionType, questionTitle, correctOption, ...options } = req.body;
+    const {
+      questionType,
+      category,
+      quizType,
+      optionType,
+      questionTitle,
+      correctOption,
+      ...options
+    } = req.body;
 
     // Create options array with unique IDs
     const optionsArray = Object.keys(options).map((key, index) => ({
       _id: new mongoose.Types.ObjectId(),
       optionText: options[key],
       optionNumber: `option${index + 1}`,
-      optionIndex : index + 1
+      optionIndex: index + 1,
     }));
 
     // Find the correct option ID
-    const correctOptionObj = optionsArray.find(option => option.optionNumber === correctOption);
+    const correctOptionObj = optionsArray.find(
+      (option) => option.optionNumber === correctOption
+    );
     if (!correctOptionObj) {
-      return res.status(400).json({ error: 'Correct option not found in provided options' });
+      return res
+        .status(400)
+        .json({ error: "Correct option not found in provided options" });
     }
 
     // Create the questionnaire object
-    const questionnaire = new Quiz({
+    const quiz = new Quiz({
       questionType,
       category,
       quizType,
@@ -31,55 +43,58 @@ exports.createQuiz = async (req, res) => {
     });
 
     // Save the questionnaire to the database
-    await questionnaire.save();
-    res.status(201).json({ message: 'Questionnaire created successfully', data: questionnaire });
+    await quiz.save();
+    res.status(201).json({
+      message: "Questionnaire created successfully",
+      data: quiz,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Update an existing questionnaire by ID
+// Update an existing quiz by ID
 exports.updateQuiz = async (req, res) => {
-  const { id } = req.params;
-  const updates = req.body;
-
   try {
-    // Find the questionnaire
-    const questionnaire = await Quiz.findById(id);
-    if (!questionnaire) {
-      return res.status(404).json({ message: "Questionnaire not found" });
+    const { id } = req.params;
+    const { questionType, category, quizType, optionType, questionTitle, correctOption, ...options } = req.body;
+
+    // Parse options from request body
+    const optionsArray = Object.keys(options).map(key => JSON.parse(options[key]));
+
+    // Handle trueFalse option type
+    if (optionType === "trueFalse") {
+      optionsArray.splice(2, 2); // Remove option3 and option4
     }
 
-    const updatedOptions = updates.options || questionnaire.options; 
-    const validOptionIds = updatedOptions.map((option) => option._id?.toString() || null);
-
-    if (updates.correctOption && !validOptionIds.includes(updates.correctOption.toString())) {
-      return res.status(400).json({
-        message: "Correct option must reference a valid option ID in the provided options",
-      });
+    // Find the correct option ID
+    const correctOptionObj = optionsArray.find(option => `option${option.optionIndex}` === correctOption);
+    if (!correctOptionObj) {
+      return res.status(400).json({ error: 'Correct option not found in provided options' });
     }
 
-    if (updates.options) {
-      questionnaire.options = updates.options.map((option) => ({
-        _id: option._id || mongoose.Types.ObjectId(), 
-        optionText: option.optionText || "",
-        optionImage: option.optionImage || "",
-      }));
+    // Update the quiz data
+    const updatedQuiz = await Quiz.findByIdAndUpdate(id, {
+      questionType,
+      category,
+      quizType,
+      optionType,
+      questionTitle,
+      options: optionsArray,
+      correctOption: correctOptionObj._id,
+    }, { new: true, runValidators: true });
+
+    if (!updatedQuiz) {
+      return res.status(404).json({ error: 'Quiz not found' });
     }
 
-    Object.keys(updates).forEach((key) => {
-      if (key !== "options") {
-        questionnaire[key] = updates[key];
-      }
+    res.status(200).json({
+      message: "Quiz updated successfully",
+      data: updatedQuiz
     });
-
-    await questionnaire.save();
-    res.status(200).json({ message: "Questionnaire updated successfully", data: questionnaire });
-
-  } catch (error) {
-    res.status(500).json({ message: "Internal server error", error: error.message });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
-
 };
 
 // Delete a questionnaire by ID

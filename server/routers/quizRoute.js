@@ -127,7 +127,7 @@ const updateValidateQuiz = (req, res, next) => {
 // Routes
 quizRoute.post("/", upload.none(), createQuiz);
 
-quizRoute.put("/:id", upload.none(), updateQuiz);
+quizRoute.put("/:id", upload.any(), updateQuiz);
 
 quizRoute.delete("/:id", deleteQuiz);
 
