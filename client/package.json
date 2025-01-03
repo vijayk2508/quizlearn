@@ -34,7 +34,7 @@
     "@testing-library/user-event": "^7.1.2",
     "@themesberg/react-bootstrap": "^1.4.1",
     "axios": "^1.7.9",
-    "bootstrap": "5.0.0-beta1",
+    "bootstrap": "^5.3.3",
     "chartist": "^0.11.4",
     "chartist-plugin-tooltips-updated": "^0.1.4",
     "dompurify": "^3.2.3",
@@ -55,13 +55,14 @@
     "simplebar-react": "^2.3.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "npm rebuild sass --force && react-scripts start",
     "build": "react-scripts build",
     "build-local": "PUBLIC_URL=./ react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "migrate-scss": "node migrate-scss.js"
   },
   "eslintConfig": {
     "extends": "react-app"
