@@ -5,7 +5,7 @@ export const Routes = {
     DashboardOverview: { path: "/" },
     ManageCategories: { path: "/manage-categories" },
     ManageQuizTypes: { path: "/manage-quiz-types" },
-    ManageQuestions: { path: "/manage-questions" },
+    ManageQuizes: { path: "/manage-quizes" },
     Transactions: { path: "/transactions" },
     Settings: { path: "/settings" },
     Upgrade: { path: "/upgrade" },

@@ -1,112 +1,53 @@
-// const mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
-// const questionnaireSchema = new mongoose.Schema({
-//   category: {
-//     type: String,
-//     required: [true, "Category is required"],
-//     trim: true,
-//   },
-//   quizName: {
-//     type: String,
-//     required: [true, "Quiz name is required"],
-//     trim: true,
-//   },
-//   questionType: {
-//     type: String,
-//     enum: ["Text Only", "True/False", "Images"],
-//     required: [true, "Question type is required"],
-//   },
-//   questionTitle: {
-//     type: String,
-//     required: [true, "Question title is required"],
-//     trim: true,
-//   },
-//   optionType: {
-//     type: String,
-//     enum: ["Text Only", "True/False", "Images"],
-//     required: [true, "Option type is required"],
-//   },
-//   options: [
-//     {
-//       _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, // Unique ID for each option
-//       optionText: { type: String, required: false },
-//       optionImage: { type: String, required: false },
-//       optionNumber : { type: Number, required: false },
-//     },
-//   ],
-//   correctOption: {
-//     type: mongoose.Schema.Types.ObjectId, // Reference to the option's ID
-//     required: [true, "Correct answer is required"],
-//   },
-//   createdAt: {
-//     type: Date,
-//     default: Date.now,
-//   },
-// });
-
-// // Middleware to validate `correctOption` references an existing option
-// questionnaireSchema.pre("save", function (next) {
-//   const validOptionIds = this.options.map((option) => option._id.toString());
-//   if (!validOptionIds.includes(this.correctOption.toString())) {
-//     return next(new Error("Invalid correctOption: must match one of the option IDs"));
-//   }
-//   next();
-// });
-
-
-// const Questionnaire = mongoose.model("Questionnaire", questionnaireSchema);
-
-// module.exports = Questionnaire;
-
-
-
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-
-const questionSchema = new Schema({
-  questionType: {
-    type: String,
-    required: true,
-  },
-  category: {
-    type: Schema.Types.ObjectId,
-    ref: 'Category',
-    required: true,
-  },
-  quizType: {
-    type: Schema.Types.ObjectId,
-    ref: 'QuizType',
-    required: true,
-  },
-  optionType: {
-    type: String,
-    required: true,
-    enum: ['textOnly', 'trueFalse', 'images'],
-  },
-  questionTitle: {
-    type: String,
-    required: true,
-  },
-  options: [
-    {
+const questionSchema = new mongoose.Schema(
+  {
+    questionType: {
       type: String,
       required: true,
     },
-  ],
-  thumbnails: [
-    {
-      type: String,
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
     },
-  ],
-  thumbnailFiles: [
-    {
-      type: String,
+    quizType: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "QuizType",
+      required: true,
     },
-  ],
-}, {
-  timestamps: true,
-});
+    questionTitle: {
+      type: String,
+      required: true,
+    },
 
-const Question = mongoose.model('Question', questionSchema);
+    optionType: {
+      type: String,
+      required: true,
+      enum: ["textOnly", "trueFalse", "images"],
+    },
 
-module.exports = Question;
+    options: [
+      {
+        _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, // Unique ID for each option
+        optionText: { type: String, required: false },
+        optionImage: { type: String, required: false },
+      },
+    ],
+    correctOption: {
+      type: mongoose.Schema.Types.ObjectId, // Reference to the option's ID
+      required: [true, "Correct answer is required"],
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+questionSchema.path("options").validate(function (value) {
+  return value.length > 0;
+}, "At least one option is required");
+
+const Questionnaire = mongoose.model("Questionnaire", questionSchema);
+
+module.exports = Questionnaire;

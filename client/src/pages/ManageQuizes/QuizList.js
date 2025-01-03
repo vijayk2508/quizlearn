@@ -18,9 +18,9 @@ import {
 import { Link } from "react-router-dom";
 
 import axiosInstance from "../../service";
-import AddEditQuestion from "./AddEditQuestion";
+import AddEditQuiz from "./AddEditQuiz";
 
-const QuestionList = ({ refresh, handleRefresh }) => {
+const QuizList = ({ refresh, handleRefresh }) => {
   const [quizTypes, setQuizTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -206,7 +206,7 @@ const QuestionList = ({ refresh, handleRefresh }) => {
       </Modal>
 
       {showEditModal && (
-        <AddEditQuestion
+        <AddEditQuiz
           showModal={showEditModal}
           setShowModal={setShowEditModal}
           id={quizTypeToEdit}
@@ -217,4 +217,4 @@ const QuestionList = ({ refresh, handleRefresh }) => {
   );
 };
 
-export default QuestionList;
+export default QuizList;

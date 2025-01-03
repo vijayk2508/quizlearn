@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   Form,
   Button,
@@ -9,15 +9,13 @@ import {
   InputGroup,
   FormControl,
 } from "@themesberg/react-bootstrap";
-import DOMPurify from "dompurify";
 import axiosInstance from "../../service";
 import SelectCategory from "./SelectCategory";
 import SelectQuizType from "./SelectQuizType";
 import SelectQuestionType from "./SelectQuestionType";
-import questionTypeData from "../../data/questiontypedata";
 import { FaLink, FaUpload } from "react-icons/fa";
 
-function AddEditQuestion({
+function AddEditQuiz({
   showModal = false,
   setShowModal = () => {},
   id = null,
@@ -104,6 +102,7 @@ function AddEditQuestion({
 
     if (!correctOption) {
       setCorrectOptionError("Correct option is required");
+      return;
     }
     // Prepare the form data
     const formData = new FormData();
@@ -114,37 +113,27 @@ function AddEditQuestion({
     formData.append("questionTitle", questionTitle);
     formData.append("correctOption", correctOption);
 
-    // Add thumbnail files if available
-    if (thumbnailFile1) {
-      formData.append("thumbnailFile1", thumbnailFile1);
-    } else {
-      formData.append("thumbnail1", thumbnail1);
-    }
-
-    if (thumbnailFile2) {
-      formData.append("thumbnailFile2", thumbnailFile2);
-    } else {
-      formData.append("thumbnail2", thumbnail2);
-    }
-
-    if (thumbnailFile3) {
-      formData.append("thumbnailFile3", thumbnailFile3);
-    } else {
-      formData.append("thumbnail3", thumbnail3);
-    }
-
-    if (thumbnailFile4) {
-      formData.append("thumbnailFile4", thumbnailFile4);
-    } else {
-      formData.append("thumbnail4", thumbnail4);
-    }
-
     // Add options based on optionType
-    formData.append("option1", option1);
-    formData.append("option2", option2);
-    if (optionType !== "trueFalse") {
-      formData.append("option3", option3);
-      formData.append("option4", option4);
+    if (optionType === "trueFalse") {
+      formData.append("option1", true);
+      formData.append("option2", false);
+    } else {
+      if (optionType === "images") {
+        if (!thumbnail1) setOption1Error("Option 1 is required");
+        if (!thumbnail2) setOption2Error("Option 2 is required");
+        if (!thumbnail3) setOption3Error("Option 3 is required");
+        if (!thumbnail4) setOption4Error("Option 4 is required");
+
+        formData.append("option1", thumbnail1);
+        formData.append("option2", thumbnail2);
+        formData.append("option3", thumbnail3);
+        formData.append("option4", thumbnail4);
+      } else {
+        formData.append("option1", option1);
+        formData.append("option2", option2);
+        formData.append("option3", option3);
+        formData.append("option4", option4);
+      }
     }
 
     try {
@@ -236,7 +225,11 @@ function AddEditQuestion({
                   id="textOnly"
                   value="textOnly"
                   checked={optionType === "textOnly"}
-                  onChange={(e) => setOptionType(e.target.value)}
+                  onChange={(e) => {
+                    setOption1("");
+                    setOption2("");
+                    setOptionType(e.target.value);
+                  }}
                 />
                 <Form.Check
                   inline
@@ -246,7 +239,11 @@ function AddEditQuestion({
                   id="trueFalse"
                   value="trueFalse"
                   checked={optionType === "trueFalse"}
-                  onChange={(e) => setOptionType(e.target.value)}
+                  onChange={(e) => {
+                    setOption1("True");
+                    setOption2("False");
+                    setOptionType(e.target.value);
+                  }}
                 />
                 <Form.Check
                   inline
@@ -256,7 +253,11 @@ function AddEditQuestion({
                   id="images"
                   value="images"
                   checked={optionType === "images"}
-                  onChange={(e) => setOptionType(e.target.value)}
+                  onChange={(e) => {
+                    setOption1("");
+                    setOption2("");
+                    setOptionType(e.target.value);
+                  }}
                 />
               </div>
             </Form.Group>
@@ -315,6 +316,7 @@ function AddEditQuestion({
                       value={option1}
                       onChange={(e) => setOption1(e.target.value)}
                       isInvalid={option1Error !== ""}
+                      disabled={optionType === "trueFalse"}
                     />
                   )}
                   <Form.Control.Feedback type="invalid">
@@ -375,6 +377,7 @@ function AddEditQuestion({
                       value={option2}
                       onChange={(e) => setOption2(e.target.value)}
                       isInvalid={option2Error !== ""}
+                      disabled={optionType === "trueFalse"}
                     />
                   )}
                   <Form.Control.Feedback type="invalid">
@@ -579,4 +582,4 @@ function AddEditQuestion({
   );
 }
 
-export default AddEditQuestion;
+export default AddEditQuiz;

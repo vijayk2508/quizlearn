@@ -50,7 +50,7 @@ import Tooltips from "./components/Tooltips";
 import Toasts from "./components/Toasts";
 import ManageCategories from './ManageCategories';
 import ManageQuizTypes from './ManageQuizTypes';
-import ManageQuestions from './ManageQuestions';
+import ManageQuizes from './ManageQuizes';
 
 const RouteWithLoader = ({ component: Component, ...rest }) => {
   const [loaded, setLoaded] = useState(false);
@@ -116,7 +116,7 @@ export default () => (
     <RouteWithSidebar exact path={Routes.DashboardOverview.path} component={DashboardOverview} />
     <RouteWithSidebar exact path={Routes.ManageCategories.path} component={ManageCategories} />
     <RouteWithSidebar exact path={Routes.ManageQuizTypes.path} component={ManageQuizTypes} />
-    <RouteWithSidebar exact path={Routes.ManageQuestions.path} component={ManageQuestions} />
+    <RouteWithSidebar exact path={Routes.ManageQuizes.path} component={ManageQuizes} />
     {/* <RouteWithSidebar exact path={Routes.QuestionTypes.path} component={ManageQuestionTypes} /> */}
     <RouteWithSidebar exact path={Routes.Transactions.path} component={Transactions} />
     <RouteWithSidebar exact path={Routes.Transactions.path} component={Transactions} />

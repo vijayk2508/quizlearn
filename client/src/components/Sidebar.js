@@ -103,7 +103,7 @@ export default (props = {}) => {
              
               <NavItem title="Manage Categories" icon={faHandHoldingUsd} link={Routes.ManageCategories.path} />
               <NavItem title="Manage Quiz Types" icon={faHandHoldingUsd} link={Routes.ManageQuizTypes.path} />
-              <NavItem title="Manage Questions" icon={faHandHoldingUsd} link={Routes.ManageQuestions.path} />
+              <NavItem title="Manage Quizes" icon={faHandHoldingUsd} link={Routes.ManageQuizes.path} />
             
               <Dropdown.Divider className="my-3 border-indigo" />
 

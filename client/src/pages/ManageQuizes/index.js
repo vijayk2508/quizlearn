@@ -10,8 +10,8 @@ import {
   InputGroup,
 } from "@themesberg/react-bootstrap";
 
-import AddEditQuestion from "./AddEditQuestion";
-import QuizTypesList from "./QuestionList";
+import AddEditQuiz from "./AddEditQuiz";
+import QuizTypesList from "./QuizList";
 
 export default () => {
   const [showModal, setShowModal] = useState(true);
@@ -62,7 +62,7 @@ export default () => {
       </div>
 
       <QuizTypesList refresh={refresh} handleRefresh={handleRefresh} />
-      <AddEditQuestion
+      <AddEditQuiz
         showModal={showModal}
         setShowModal={setShowModal}
         handleRefresh={handleRefresh}
