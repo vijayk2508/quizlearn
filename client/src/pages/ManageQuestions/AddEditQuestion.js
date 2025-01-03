@@ -60,6 +60,7 @@ function AddEditQuestion({
   const fileInputRef3 = useRef(null);
   const fileInputRef4 = useRef(null);
   const [correctOption, setCorrectOption] = useState("");
+  const [correctOptionError, setCorrectOptionError] = useState("");
 
   const handleClose = () => {
     setShowModal(false);
@@ -101,6 +102,9 @@ function AddEditQuestion({
       if (!option4) setOption4Error("Option 4 is required");
     }
 
+    if (!correctOption) {
+      setCorrectOptionError("Correct option is required");
+    }
     // Prepare the form data
     const formData = new FormData();
     formData.append("questionType", questionType);
@@ -512,7 +516,7 @@ function AddEditQuestion({
                 as="select"
                 value={correctOption}
                 onChange={(e) => setCorrectOption(e.target.value)}
-                isInvalid={correctOption === ""}
+                isInvalid={correctOptionError}
               >
                 <option value="">Select Correct Option</option>
                 <option value="option1">Option 1</option>
@@ -525,7 +529,7 @@ function AddEditQuestion({
                 )}
               </Form.Control>
               <Form.Control.Feedback type="invalid">
-                Please select the correct option.
+                {correctOptionError}
               </Form.Control.Feedback>
             </Form.Group>
 
