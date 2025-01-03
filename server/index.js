@@ -34,7 +34,7 @@ app.use(compression());
 // Configure CORS for localhost and production
 const allowedOrigins = [
   'http://localhost:3000', // React localhost
-  process.env.PRODUCTION_DOMAIN || 'https://yourproductiondomain.com', // React production domain
+  process.env.PRODUCTION_DOMAIN || 'https://quizlearn-five.vercel.app/', // React production domain
 ];
 
 app.use(cors({
