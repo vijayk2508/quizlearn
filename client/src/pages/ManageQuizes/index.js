@@ -14,7 +14,7 @@ import AddEditQuiz from "./AddEditQuiz";
 import QuizTypesList from "./QuizList";
 
 export default () => {
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
 
   const [refresh, setRefresh] = useState(false);
 
@@ -33,9 +33,9 @@ export default () => {
             <Breadcrumb.Item>
               <FontAwesomeIcon icon={faHome} />
             </Breadcrumb.Item>
-            <Breadcrumb.Item active>Quiz Types</Breadcrumb.Item>
+            <Breadcrumb.Item active>Manage Quiz</Breadcrumb.Item>
           </Breadcrumb>
-          <h4>Quiz Types</h4>
+          <h4>Manage Quiz</h4>
         </div>
       </div>
 
@@ -55,7 +55,7 @@ export default () => {
               className="m-1"
               onClick={() => setShowModal(true)}
             >
-              Add Quiz Type
+              Add Quiz
             </Button>
           </Col>
         </Row>

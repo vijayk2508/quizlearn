@@ -27,17 +27,17 @@ const QuizList = ({ refresh, handleRefresh }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [quizTypeToDelete, setQuizTypeToDelete] = useState(null);
+  const [quizToDelete, setQuizToDelete] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [quizTypeToEdit, setQuizTypeToEdit] = useState(null);
+  const [quizToEdit, setQuizToEdit] = useState(null);
 
   useEffect(() => {
     const fetchQuizTypes = async () => {
       try {
         const response = await axiosInstance.get(
-          `/quiztype?page=${currentPage}&limit=10`
+          `/quiz?page=${currentPage}&limit=10`
         );
-        setQuizTypes(response.data.quizTypes);
+        setQuizTypes(response.data.quizzes);
         setTotalPages(Math.ceil(response.data.total / 10));
         setLoading(false);
       } catch (error) {
@@ -54,30 +54,31 @@ const QuizList = ({ refresh, handleRefresh }) => {
   };
 
   const handleEdit = (id) => {
-    setQuizTypeToEdit(id);
+    setQuizToEdit(id);
     setShowEditModal(true);
   };
 
   const handleDelete = (id) => {
-    setQuizTypeToDelete(id);
+    setQuizToDelete(id);
     setShowDeleteModal(true);
   };
 
   const confirmDelete = async () => {
     try {
-      await axiosInstance.delete(`/quiztype/${quizTypeToDelete}`);
+      await axiosInstance.delete(`/quiz/${quizToDelete}`);
       setShowDeleteModal(false);
-      setQuizTypeToDelete(null);
+      setQuizToDelete(null);
       handleRefresh(!refresh); // Refresh the quiz types list
     } catch (error) {
       setError("Error deleting quiz type. Please try again.");
       setShowDeleteModal(false);
-      setQuizTypeToDelete(null);
+      setQuizToDelete(null);
     }
   };
 
   const TableRow = (props) => {
-    const { id, _id, name, createdAt, updatedAt } = props;
+    const { category, id, _id, quizType, optionType,questionTitle, options, correctOption } =
+      props;
 
     return (
       <tr>
@@ -87,18 +88,25 @@ const QuizList = ({ refresh, handleRefresh }) => {
           </Card.Link>
         </td>
         <td>
-          <span className="fw-normal">{name}</span>
+          <span className="fw-normal">{category.name}</span>
         </td>
         <td>
-          <span className="fw-normal">
-            {new Date(createdAt).toLocaleDateString()}
-          </span>
+          <span className="fw-normal">{quizType.name}</span>
         </td>
         <td>
-          <span className="fw-normal">
-            {new Date(updatedAt).toLocaleDateString()}
-          </span>
+          <span className="fw-normal">{questionTitle}</span>
         </td>
+        <td>
+          <span className="fw-normal">{optionType}</span>
+        </td>
+        <td>
+          <ul>
+            {options?.map?.((option) => (
+              <li key={option?._id}>{option.optionText}</li>
+            ))}
+          </ul>
+        </td>
+        <td>{options.find((opt) => opt._id === correctOption)?.optionText}</td>
         <td>
           <Dropdown as={ButtonGroup}>
             <Dropdown.Toggle
@@ -142,9 +150,12 @@ const QuizList = ({ refresh, handleRefresh }) => {
                 <thead>
                   <tr>
                     <th className="border-bottom">#</th>
-                    <th className="border-bottom">Name</th>
-                    <th className="border-bottom">Created At</th>
-                    <th className="border-bottom">Updated At</th>
+                    <th className="border-bottom">Category</th>
+                    <th className="border-bottom">Quiz Type</th>
+                    <th className="border-bottom">Question Title</th>
+                    <th className="border-bottom">Option Type</th>
+                    <th className="border-bottom">Options</th>
+                    <th className="border-bottom">Correct Option</th>
                     <th className="border-bottom">Action</th>
                   </tr>
                 </thead>
@@ -209,7 +220,7 @@ const QuizList = ({ refresh, handleRefresh }) => {
         <AddEditQuiz
           showModal={showEditModal}
           setShowModal={setShowEditModal}
-          id={quizTypeToEdit}
+          id={quizToEdit}
           handleRefresh={handleRefresh}
         />
       )}

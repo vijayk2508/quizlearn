@@ -73,12 +73,12 @@ mongoose
   });
 
 // Import Routes
-const questionnaireRoute = require('./routers/questionnaireRoute'); // Routes will be organized in a separate folder/file
+const quizRoute = require('./routers/quizRoute'); // Routes will be organized in a separate folder/file
 const categoriesRouter = require('./routers/categoriesRouter');
 const quizTypeRouter = require('./routers/quizTypeRouter');
 
 // Use Routes
-app.use('/questionnaire', questionnaireRoute);
+app.use('/quiz', quizRoute);
 app.use('/categories', categoriesRouter);
 app.use('/quiztype', quizTypeRouter);
 

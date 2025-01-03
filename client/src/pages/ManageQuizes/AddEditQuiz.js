@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Form,
   Button,
@@ -14,6 +14,7 @@ import SelectCategory from "./SelectCategory";
 import SelectQuizType from "./SelectQuizType";
 import SelectQuestionType from "./SelectQuestionType";
 import { FaLink, FaUpload } from "react-icons/fa";
+import questionTypeData from "../../data/questiontypedata";
 
 function AddEditQuiz({
   showModal = false,
@@ -24,10 +25,12 @@ function AddEditQuiz({
   const [responseError, setResponseError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [questionType, setQuestionType] = useState("");
+  const [questionType, setQuestionType] = useState(
+    questionTypeData.text_only.value
+  );
   const [category, setCategory] = useState("");
   const [quizType, setQuizType] = useState("");
-  const [optionType, setOptionType] = useState("");
+  const [optionType, setOptionType] = useState("textOnly");
   const [option1, setOption1] = useState("");
   const [option2, setOption2] = useState("");
   const [option3, setOption3] = useState("");
@@ -59,6 +62,76 @@ function AddEditQuiz({
   const fileInputRef4 = useRef(null);
   const [correctOption, setCorrectOption] = useState("");
   const [correctOptionError, setCorrectOptionError] = useState("");
+
+  useEffect(() => {
+    if (id) {
+      // Fetch quiz data for editing
+      const fetchQuizData = async () => {
+        try {
+          const response = await axiosInstance.get(`/quiz/${id}`);
+          const quizData = response.data.data;
+          console.log(quizData);
+
+          setQuestionType(quizData.questionType._id);
+          setCategory(quizData.category);
+          setQuizType(quizData.quizType);
+          setOptionType(quizData.optionType);
+          setQuestionTitle(quizData.questionTitle);
+          const correctOptionObjIndex = quizData.options?.find?.(opt=> opt._id===quizData?.correctOption)?.optionIndex
+          setCorrectOption(`option${correctOptionObjIndex}`);
+          if (quizData.options) {
+            if (quizData.optionType === "trueFalse") {
+              quizData.options.forEach((opt) => {
+                if (opt.optionIndex === 1) {
+                  setOption1(opt.optionText);
+                }
+                if (opt.optionIndex === 2) {
+                  setOption2(opt.optionText);
+                }
+              });
+            } else {
+              quizData.options.forEach((opt) => {
+                if (quizData.optionType !== "images") {
+                  if (opt.optionIndex === 1) {
+                    setOption1(opt.optionText);
+                  }
+                  if (opt.optionIndex === 2) {
+                    setOption2(opt.optionText);
+                  }
+
+                  if (opt.optionIndex === 2) {
+                    setOption3(opt.optionText);
+                  }
+
+                  if (opt.optionIndex === 2) {
+                    setOption4(opt.optionText);
+                  }
+                } else {
+                  if (opt.optionIndex === 1) {
+                    setThumbnail1(opt.optionImage);
+                  }
+                  if (opt.optionIndex === 2) {
+                    setThumbnail2(opt.optionImage);
+                  }
+
+                  if (opt.optionIndex === 2) {
+                    setThumbnail3(opt.optionImage);
+                  }
+
+                  if (opt.optionIndex === 2) {
+                    setThumbnail4(opt.optionImage);
+                  }
+                }
+              });
+            }
+          }
+        } catch (error) {
+          setResponseError("Failed to fetch quiz data.");
+        }
+      };
+      fetchQuizData();
+    }
+  }, [id]);
 
   const handleClose = () => {
     setShowModal(false);
@@ -138,13 +211,19 @@ function AddEditQuiz({
 
     try {
       // Submit the form data
-      const response = await axiosInstance.post("/api/questions", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = id
+        ? await axiosInstance.put(`/quiz/${id}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+        : await axiosInstance.post("/quiz", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
 
-      if (response.status === 200) {
+      if (response.status === 201 || response.status === 200) {
         setShowSuccessModal(true);
         handleRefresh();
         setShowModal(false);

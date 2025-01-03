@@ -1,6 +1,7 @@
+
 const mongoose = require("mongoose");
 
-const questionSchema = new mongoose.Schema(
+const quizSchema = new mongoose.Schema(
   {
     questionType: {
       type: String,
@@ -20,23 +21,29 @@ const questionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     optionType: {
       type: String,
       required: true,
       enum: ["textOnly", "trueFalse", "images"],
     },
-
     options: [
       {
-        _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, // Unique ID for each option
+        _id: { type: mongoose.Schema.Types.ObjectId, auto: true }, // Auto-generate ObjectId for each option
         optionText: { type: String, required: false },
+        optionIndex: { type: Number, required: true },
         optionImage: { type: String, required: false },
       },
     ],
     correctOption: {
-      type: mongoose.Schema.Types.ObjectId, // Reference to the option's ID
+      type: mongoose.Schema.Types.ObjectId,
       required: [true, "Correct answer is required"],
+      validate: {
+        validator: function (value) {
+          // Ensure the correctOption matches one of the options' _id
+          return this.options.some(option => option._id.toString() === value.toString());
+        },
+        message: "Correct option must match one of the options' IDs.",
+      },
     },
   },
   {
@@ -44,10 +51,12 @@ const questionSchema = new mongoose.Schema(
   }
 );
 
-questionSchema.path("options").validate(function (value) {
+
+quizSchema.path("options").validate(function (value) {
   return value.length > 0;
 }, "At least one option is required");
 
-const Questionnaire = mongoose.model("Questionnaire", questionSchema);
+const Quiz = mongoose.model("Quiz", quizSchema);
 
-module.exports = Questionnaire;
+module.exports = Quiz;
+

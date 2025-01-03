@@ -1,16 +1,21 @@
 const express = require("express");
-const questionnaireRoute = express.Router();
+const multer = require("multer");
 const Joi = require("joi");
 const {
-  createQuestionnaire,
-  updateQuestionnaire,
-  deleteQuestionnaire,
-  getAllQuestionnaires,
-  getQuestionnaireById,
-} = require("../controllers/questionnaireController");
+  createQuiz,
+  updateQuiz,
+  deleteQuiz,
+  getQuizById,
+  getAllQuizzes,
+} = require("../controllers/quizController");
+
+const quizRoute = express.Router();
+
+// Configure multer for form data
+const upload = multer();
 
 // Joi Schema for Validation
-const creatQuestionnaireSchema = Joi.object({
+const createQuizSchema = Joi.object({
   category: Joi.string().trim().required().messages({
     "string.empty": "Category is required",
     "any.required": "Category is required",
@@ -52,8 +57,8 @@ const creatQuestionnaireSchema = Joi.object({
   createdAt: Joi.date().default(Date.now),
 });
 
-const createValidateQuestionnaire = (req, res, next) => {
-  const { error } = creatQuestionnaireSchema.validate(req.body, {
+const createValidateQuiz = (req, res, next) => {
+  const { error } = createQuizSchema.validate(req.body, {
     abortEarly: false,
   });
   if (error) {
@@ -64,7 +69,7 @@ const createValidateQuestionnaire = (req, res, next) => {
   next();
 };
 
-const updateQuestionnaireSchema = Joi.object({
+const updateQuizSchema = Joi.object({
   category: Joi.string().trim().messages({
     "string.empty": "Category is required",
     "any.required": "Category is required",
@@ -84,21 +89,22 @@ const updateQuestionnaireSchema = Joi.object({
     "string.empty": "Question title is required",
     "any.required": "Question title is required",
   }),
-  optionType: Joi.string()
-    .valid("Text Only", "True/False", "Images")
-    .messages({
-      "any.only":
-        "Option type must be one of 'Text Only', 'True/False', or 'Images'",
-      "any.required": "Option type is required",
-    }),
-  options: Joi.array().items(
-    Joi.object({
-      optionText: Joi.string().allow(null, "").optional(),
-      optionImage: Joi.string().allow(null, "").optional(),
-    })
-  ).min(1).messages({
-    "array.min": "At least one option is required",
+  optionType: Joi.string().valid("Text Only", "True/False", "Images").messages({
+    "any.only":
+      "Option type must be one of 'Text Only', 'True/False', or 'Images'",
+    "any.required": "Option type is required",
   }),
+  options: Joi.array()
+    .items(
+      Joi.object({
+        optionText: Joi.string().allow(null, "").optional(),
+        optionImage: Joi.string().allow(null, "").optional(),
+      })
+    )
+    .min(1)
+    .messages({
+      "array.min": "At least one option is required",
+    }),
   correctOption: Joi.string().trim().messages({
     "string.empty": "Correct option is required",
     "any.required": "Correct option is required",
@@ -106,8 +112,8 @@ const updateQuestionnaireSchema = Joi.object({
   createdAt: Joi.date().default(Date.now),
 });
 
-const updateValidateQuestionnaire = (req, res, next) => {
-  const { error } = updateQuestionnaireSchema.validate(req.body, {
+const updateValidateQuiz = (req, res, next) => {
+  const { error } = updateQuizSchema.validate(req.body, {
     abortEarly: false,
   });
   if (error) {
@@ -119,22 +125,14 @@ const updateValidateQuestionnaire = (req, res, next) => {
 };
 
 // Routes
-questionnaireRoute.post(
-  "/create",
-  createValidateQuestionnaire,
-  createQuestionnaire
-);
+quizRoute.post("/", upload.none(), createQuiz);
 
-questionnaireRoute.put(
-  "/update/:id",
-  updateValidateQuestionnaire,
-  updateQuestionnaire
-);
+quizRoute.put("/:id", upload.none(), updateQuiz);
 
-questionnaireRoute.delete("/delete/:id", deleteQuestionnaire);
+quizRoute.delete("/:id", deleteQuiz);
 
-questionnaireRoute.get("/:id", getQuestionnaireById);
+quizRoute.get("/:id", getQuizById);
 
-questionnaireRoute.get("/", getAllQuestionnaires);
+quizRoute.get("/", getAllQuizzes);
 
-module.exports = questionnaireRoute;
+module.exports = quizRoute;
